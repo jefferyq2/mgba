@@ -16,7 +16,7 @@
 #endif
 
 #ifdef __3DS__
-#define blip_add_delta blip_add_delta_fast
+#define blip_add_delta_ blip_add_delta__fast_
 #endif
 
 #define FRAME_CYCLES (DMG_SM83_FREQUENCY >> 9)
@@ -57,12 +57,12 @@ static const int _squareChannelDuty[4][8] = {
 
 void GBAudioInit(struct GBAudio* audio, size_t samples, uint8_t* nr52, enum GBAudioStyle style) {
 	audio->samples = samples;
-	audio->left = blip_new(BLIP_BUFFER_SIZE);
-	audio->right = blip_new(BLIP_BUFFER_SIZE);
+	audio->left = blip_new_(BLIP_BUFFER_SIZE);
+	audio->right = blip_new_(BLIP_BUFFER_SIZE);
 	audio->clockRate = DMG_SM83_FREQUENCY;
 	// Guess too large; we hang producing extra samples if we guess too low
-	blip_set_rates(audio->left, DMG_SM83_FREQUENCY, 96000);
-	blip_set_rates(audio->right, DMG_SM83_FREQUENCY, 96000);
+	blip_set_rates_(audio->left, DMG_SM83_FREQUENCY, 96000);
+	blip_set_rates_(audio->right, DMG_SM83_FREQUENCY, 96000);
 	audio->forceDisableCh[0] = false;
 	audio->forceDisableCh[1] = false;
 	audio->forceDisableCh[2] = false;
@@ -86,8 +86,8 @@ void GBAudioInit(struct GBAudio* audio, size_t samples, uint8_t* nr52, enum GBAu
 }
 
 void GBAudioDeinit(struct GBAudio* audio) {
-	blip_delete(audio->left);
-	blip_delete(audio->right);
+	blip_delete_(audio->left);
+	blip_delete_(audio->right);
 }
 
 void GBAudioReset(struct GBAudio* audio) {
@@ -145,8 +145,8 @@ void GBAudioResizeBuffer(struct GBAudio* audio, size_t samples) {
 	}
 	mCoreSyncLockAudio(audio->p->sync);
 	audio->samples = samples;
-	blip_clear(audio->left);
-	blip_clear(audio->right);
+	blip_clear_(audio->left);
+	blip_clear_(audio->right);
 	audio->clock = 0;
 	mCoreSyncConsumeAudio(audio->p->sync);
 }
@@ -847,15 +847,15 @@ static void _sample(struct mTiming* timing, void* user, uint32_t cyclesLate) {
 	for (i = 0; i < GB_MAX_SAMPLES; ++i) {
 		int16_t sampleLeft = audio->currentSamples[i].left;
 		int16_t sampleRight = audio->currentSamples[i].right;
-		if ((size_t) blip_samples_avail(audio->left) < audio->samples) {
-			blip_add_delta(audio->left, audio->clock, sampleLeft - audio->lastLeft);
-			blip_add_delta(audio->right, audio->clock, sampleRight - audio->lastRight);
+		if ((size_t) blip_samples_avail_(audio->left) < audio->samples) {
+			blip_add_delta_(audio->left, audio->clock, sampleLeft - audio->lastLeft);
+			blip_add_delta_(audio->right, audio->clock, sampleRight - audio->lastRight);
 			audio->lastLeft = sampleLeft;
 			audio->lastRight = sampleRight;
 			audio->clock += SAMPLE_INTERVAL;
 			if (audio->clock >= CLOCKS_PER_BLIP_FRAME) {
-				blip_end_frame(audio->left, CLOCKS_PER_BLIP_FRAME);
-				blip_end_frame(audio->right, CLOCKS_PER_BLIP_FRAME);
+				blip_end_frame_(audio->left, CLOCKS_PER_BLIP_FRAME);
+				blip_end_frame_(audio->right, CLOCKS_PER_BLIP_FRAME);
 				audio->clock -= CLOCKS_PER_BLIP_FRAME;
 			}
 		}
@@ -864,7 +864,7 @@ static void _sample(struct mTiming* timing, void* user, uint32_t cyclesLate) {
 		}
 	}
 
-	produced = blip_samples_avail(audio->left);
+	produced = blip_samples_avail_(audio->left);
 	bool wait = produced >= audio->samples;
 	if (!mCoreSyncProduceAudio(audio->p->sync, audio->left, audio->samples)) {
 		// Interrupted

@@ -17,7 +17,7 @@
 #define MP2K_LOCK_MAX 8
 
 #ifdef __3DS__
-#define blip_add_delta blip_add_delta_fast
+#define blip_add_delta_ blip_add_delta__fast_
 #endif
 
 mLOG_DEFINE_CATEGORY(GBA_AUDIO, "GBA Audio", "gba.audio");
@@ -47,8 +47,8 @@ void GBAAudioInit(struct GBAAudio* audio, size_t samples) {
 	audio->psg.frameEvent.context = audio;
 	audio->samples = samples;
 	// Guess too large; we hang producing extra samples if we guess too low
-	blip_set_rates(audio->psg.left, GBA_ARM7TDMI_FREQUENCY, 96000);
-	blip_set_rates(audio->psg.right, GBA_ARM7TDMI_FREQUENCY, 96000);
+	blip_set_rates_(audio->psg.left, GBA_ARM7TDMI_FREQUENCY, 96000);
+	blip_set_rates_(audio->psg.right, GBA_ARM7TDMI_FREQUENCY, 96000);
 
 	audio->externalMixing = false;
 	audio->forceDisableChA = false;
@@ -96,8 +96,8 @@ void GBAAudioReset(struct GBAAudio* audio) {
 	audio->sampleInterval = GBA_ARM7TDMI_FREQUENCY / 0x8000;
 	audio->psg.sampleInterval = audio->sampleInterval;
 
-	blip_clear(audio->psg.left);
-	blip_clear(audio->psg.right);
+	blip_clear_(audio->psg.left);
+	blip_clear_(audio->psg.right);
 	audio->clock = 0;
 }
 
@@ -111,8 +111,8 @@ void GBAAudioResizeBuffer(struct GBAAudio* audio, size_t samples) {
 	}
 	mCoreSyncLockAudio(audio->p->sync);
 	audio->samples = samples;
-	blip_clear(audio->psg.left);
-	blip_clear(audio->psg.right);
+	blip_clear_(audio->psg.left);
+	blip_clear_(audio->psg.right);
 	audio->clock = 0;
 	mCoreSyncConsumeAudio(audio->p->sync);
 }
@@ -444,15 +444,15 @@ static void _sample(struct mTiming* timing, void* user, uint32_t cyclesLate) {
 	for (i = 0; i < samples; ++i) {
 		int16_t sampleLeft = audio->currentSamples[i].left;
 		int16_t sampleRight = audio->currentSamples[i].right;
-		if ((size_t) blip_samples_avail(audio->psg.left) < audio->samples) {
-			blip_add_delta(audio->psg.left, audio->clock, sampleLeft - audio->lastLeft);
-			blip_add_delta(audio->psg.right, audio->clock, sampleRight - audio->lastRight);
+		if ((size_t) blip_samples_avail_(audio->psg.left) < audio->samples) {
+			blip_add_delta_(audio->psg.left, audio->clock, sampleLeft - audio->lastLeft);
+			blip_add_delta_(audio->psg.right, audio->clock, sampleRight - audio->lastRight);
 			audio->lastLeft = sampleLeft;
 			audio->lastRight = sampleRight;
 			audio->clock += audio->sampleInterval;
 			if (audio->clock >= CLOCKS_PER_FRAME) {
-				blip_end_frame(audio->psg.left, CLOCKS_PER_FRAME);
-				blip_end_frame(audio->psg.right, CLOCKS_PER_FRAME);
+				blip_end_frame_(audio->psg.left, CLOCKS_PER_FRAME);
+				blip_end_frame_(audio->psg.right, CLOCKS_PER_FRAME);
 				audio->clock -= CLOCKS_PER_FRAME;
 			}
 		}
@@ -461,7 +461,7 @@ static void _sample(struct mTiming* timing, void* user, uint32_t cyclesLate) {
 			audio->p->stream->postAudioFrame(audio->p->stream, sampleLeft, sampleRight);
 		}
 	}
-	produced = blip_samples_avail(audio->psg.left);
+	produced = blip_samples_avail_(audio->psg.left);
 	bool wait = produced >= audio->samples;
 	if (!mCoreSyncProduceAudio(audio->p->sync, audio->psg.left, audio->samples)) {
 		// Interrupted

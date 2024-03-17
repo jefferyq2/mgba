@@ -248,8 +248,8 @@ static void reconfigureScreen(struct mGUIRunner* runner) {
 		runner->params.height = vmode->efbHeight * guiScale * hAdjust;
 		if (runner->core) {
 			double ratio = GBAAudioCalculateRatio(1, audioSampleRate, 1);
-			blip_set_rates(runner->core->getAudioChannel(runner->core, 0), runner->core->frequency(runner->core), 48000 * ratio);
-			blip_set_rates(runner->core->getAudioChannel(runner->core, 1), runner->core->frequency(runner->core), 48000 * ratio);
+			blip_set_rates_(runner->core->getAudioChannel(runner->core, 0), runner->core->frequency(runner->core), 48000 * ratio);
+			blip_set_rates_(runner->core->getAudioChannel(runner->core, 1), runner->core->frequency(runner->core), 48000 * ratio);
 		}
 	}
 }
@@ -694,14 +694,14 @@ static void _postAudioBuffer(struct mAVStream* stream, blip_t* left, blip_t* rig
 	u32 level = 0;
 	_CPU_ISR_Disable(level);
 	struct AudioBuffer* buffer = &audioBuffer[nextAudioBuffer];
-	int available = blip_samples_avail(left);
+	int available = blip_samples_avail_(left);
 	if (available + buffer->size > SAMPLES) {
 		available = SAMPLES - buffer->size;
 	}
 	if (available > 0) {
 		// These appear to be reversed for AUDIO_InitDMA
-		blip_read_samples(left, &buffer->samples[buffer->size].right, available, true);
-		blip_read_samples(right, &buffer->samples[buffer->size].left, available, true);
+		blip_read_samples_(left, &buffer->samples[buffer->size].right, available, true);
+		blip_read_samples_(right, &buffer->samples[buffer->size].left, available, true);
 		buffer->size += available;
 	}
 	if (buffer->size == SAMPLES) {
@@ -1423,8 +1423,8 @@ void _setup(struct mGUIRunner* runner) {
 	runner->core->setAudioBufferSize(runner->core, SAMPLES);
 
 	double ratio = GBAAudioCalculateRatio(1, audioSampleRate, 1);
-	blip_set_rates(runner->core->getAudioChannel(runner->core, 0), runner->core->frequency(runner->core), 48000 * ratio);
-	blip_set_rates(runner->core->getAudioChannel(runner->core, 1), runner->core->frequency(runner->core), 48000 * ratio);
+	blip_set_rates_(runner->core->getAudioChannel(runner->core, 0), runner->core->frequency(runner->core), 48000 * ratio);
+	blip_set_rates_(runner->core->getAudioChannel(runner->core, 1), runner->core->frequency(runner->core), 48000 * ratio);
 
 	frameLimiter = true;
 }

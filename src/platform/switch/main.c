@@ -331,8 +331,8 @@ static void _gameLoaded(struct mGUIRunner* runner) {
 	u32 samplerate = audoutGetSampleRate();
 
 	double ratio = GBAAudioCalculateRatio(1, 60.0, 1);
-	blip_set_rates(runner->core->getAudioChannel(runner->core, 0), runner->core->frequency(runner->core), samplerate * ratio);
-	blip_set_rates(runner->core->getAudioChannel(runner->core, 1), runner->core->frequency(runner->core), samplerate * ratio);
+	blip_set_rates_(runner->core->getAudioChannel(runner->core, 0), runner->core->frequency(runner->core), samplerate * ratio);
+	blip_set_rates_(runner->core->getAudioChannel(runner->core, 1), runner->core->frequency(runner->core), samplerate * ratio);
 
 	mCoreConfigGetUIntValue(&runner->config, "fastForwardCap", &framecap);
 
@@ -596,20 +596,20 @@ static void _postAudioBuffer(struct mAVStream* stream, blip_t* left, blip_t* rig
 	_audioWait(0);
 	while (enqueuedBuffers >= N_BUFFERS - 1) {
 		if (!frameLimiter) {
-			blip_clear(left);
-			blip_clear(right);
+			blip_clear_(left);
+			blip_clear_(right);
 			return;
 		}
 		_audioWait(10000000);
 	}
 	if (enqueuedBuffers >= N_BUFFERS) {
-		blip_clear(left);
-		blip_clear(right);
+		blip_clear_(left);
+		blip_clear_(right);
 		return;
 	}
 	struct mStereoSample* samples = audioBuffer[audioBufferActive];
-	blip_read_samples(left, &samples[0].left, SAMPLES, true);
-	blip_read_samples(right, &samples[0].right, SAMPLES, true);
+	blip_read_samples_(left, &samples[0].left, SAMPLES, true);
+	blip_read_samples_(right, &samples[0].right, SAMPLES, true);
 	audoutAppendAudioOutBuffer(&audoutBuffer[audioBufferActive]);
 	++audioBufferActive;
 	audioBufferActive %= N_BUFFERS;

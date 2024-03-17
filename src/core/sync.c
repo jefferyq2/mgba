@@ -84,12 +84,12 @@ bool mCoreSyncProduceAudio(struct mCoreSync* sync, const struct blip_t* buf, siz
 		return true;
 	}
 
-	size_t produced = blip_samples_avail(buf);
+	size_t produced = blip_samples_avail_(buf);
 	size_t producedNew = produced;
 	while (sync->audioWait && producedNew >= samples) {
 		ConditionWait(&sync->audioRequiredCond, &sync->audioBufferMutex);
 		produced = producedNew;
-		producedNew = blip_samples_avail(buf);
+		producedNew = blip_samples_avail_(buf);
 	}
 	MutexUnlock(&sync->audioBufferMutex);
 	return producedNew != produced;

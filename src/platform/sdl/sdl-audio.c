@@ -112,16 +112,16 @@ static void _mSDLAudioCallback(void* context, Uint8* data, int len) {
 		}
 		mCoreSyncLockAudio(audioContext->sync);
 	}
-	blip_set_rates(left, clockRate, audioContext->obtainedSpec.freq * fauxClock);
-	blip_set_rates(right, clockRate, audioContext->obtainedSpec.freq * fauxClock);
+	blip_set_rates_(left, clockRate, audioContext->obtainedSpec.freq * fauxClock);
+	blip_set_rates_(right, clockRate, audioContext->obtainedSpec.freq * fauxClock);
 	len /= 2 * audioContext->obtainedSpec.channels;
-	int available = blip_samples_avail(left);
+	int available = blip_samples_avail_(left);
 	if (available > len) {
 		available = len;
 	}
-	blip_read_samples(left, (short*) data, available, audioContext->obtainedSpec.channels == 2);
+	blip_read_samples_(left, (short*) data, available, audioContext->obtainedSpec.channels == 2);
 	if (audioContext->obtainedSpec.channels == 2) {
-		blip_read_samples(right, ((short*) data) + 1, available, 1);
+		blip_read_samples_(right, ((short*) data) + 1, available, 1);
 	}
 
 	if (audioContext->sync) {

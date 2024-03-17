@@ -615,7 +615,7 @@ void retro_run(void) {
 	if (core->platform(core) == mPLATFORM_GBA) {
 		blip_t *audioChannelLeft  = core->getAudioChannel(core, 0);
 		blip_t *audioChannelRight = core->getAudioChannel(core, 1);
-		int samplesAvail          = blip_samples_avail(audioChannelLeft);
+		int samplesAvail          = blip_samples_avail_(audioChannelLeft);
 		if (samplesAvail > 0) {
 			/* Update 'running average' of number of
 			 * samples per frame.
@@ -632,8 +632,8 @@ void retro_run(void) {
 				audioSampleBufferSize = (samplesToRead * 2);
 				audioSampleBuffer     = realloc(audioSampleBuffer, audioSampleBufferSize * sizeof(int16_t));
 			}
-			int produced = blip_read_samples(audioChannelLeft, audioSampleBuffer, samplesToRead, true);
-			blip_read_samples(audioChannelRight, audioSampleBuffer + 1, samplesToRead, true);
+			int produced = blip_read_samples_(audioChannelLeft, audioSampleBuffer, samplesToRead, true);
+			blip_read_samples_(audioChannelRight, audioSampleBuffer + 1, samplesToRead, true);
 			if (produced > 0) {
 				if (audioLowPassEnabled) {
 					_audioLowPassFilter(audioSampleBuffer, produced);
@@ -918,8 +918,8 @@ bool retro_load_game(const struct retro_game_info* game) {
 		core->setAudioBufferSize(core, GB_SAMPLES);
 	}
 
-	blip_set_rates(core->getAudioChannel(core, 0), core->frequency(core), SAMPLE_RATE);
-	blip_set_rates(core->getAudioChannel(core, 1), core->frequency(core), SAMPLE_RATE);
+	blip_set_rates_(core->getAudioChannel(core, 0), core->frequency(core), SAMPLE_RATE);
+	blip_set_rates_(core->getAudioChannel(core, 1), core->frequency(core), SAMPLE_RATE);
 
 	core->setPeripheral(core, mPERIPH_RUMBLE, &rumble);
 	core->setPeripheral(core, mPERIPH_ROTATION, &rotation);
@@ -1240,8 +1240,8 @@ void GBARetroLog(struct mLogger* logger, int category, enum mLogLevel level, con
 /* Used only for GB/GBC content */
 static void _postAudioBuffer(struct mAVStream* stream, blip_t* left, blip_t* right) {
 	UNUSED(stream);
-	int produced = blip_read_samples(left, audioSampleBuffer, GB_SAMPLES, true);
-	blip_read_samples(right, audioSampleBuffer + 1, GB_SAMPLES, true);
+	int produced = blip_read_samples_(left, audioSampleBuffer, GB_SAMPLES, true);
+	blip_read_samples_(right, audioSampleBuffer + 1, GB_SAMPLES, true);
 	if (produced > 0) {
 		if (audioLowPassEnabled) {
 			_audioLowPassFilter(audioSampleBuffer, produced);

@@ -344,8 +344,8 @@ static void _gameLoaded(struct mGUIRunner* runner) {
 	osSetSpeedupEnable(true);
 
 	double ratio = GBAAudioCalculateRatio(1, 268111856.f / 4481136.f, 1);
-	blip_set_rates(runner->core->getAudioChannel(runner->core, 0), runner->core->frequency(runner->core), 32768 * ratio);
-	blip_set_rates(runner->core->getAudioChannel(runner->core, 1), runner->core->frequency(runner->core), 32768 * ratio);
+	blip_set_rates_(runner->core->getAudioChannel(runner->core, 0), runner->core->frequency(runner->core), 32768 * ratio);
+	blip_set_rates_(runner->core->getAudioChannel(runner->core, 1), runner->core->frequency(runner->core), 32768 * ratio);
 	if (hasSound != NO_SOUND) {
 		audioPos = 0;
 	}
@@ -608,8 +608,8 @@ static void _drawFrame(struct mGUIRunner* runner, bool faded) {
 				GX_TRANSFER_OUT_TILED(1) | GX_TRANSFER_FLIP_VERT(1));
 
 	if (hasSound == NO_SOUND) {
-		blip_clear(runner->core->getAudioChannel(runner->core, 0));
-		blip_clear(runner->core->getAudioChannel(runner->core, 1));
+		blip_clear_(runner->core->getAudioChannel(runner->core, 0));
+		blip_clear_(runner->core->getAudioChannel(runner->core, 1));
 	}
 
 	_drawTex(runner->core, faded, interframeBlending);
@@ -783,8 +783,8 @@ static void _postAudioBuffer(struct mAVStream* stream, blip_t* left, blip_t* rig
 		while (dspBuffer[bufferId].status == NDSP_WBUF_QUEUED || dspBuffer[bufferId].status == NDSP_WBUF_PLAYING) {
 			bufferId = (bufferId + 1) & (DSP_BUFFERS - 1);
 			if (bufferId == startId) {
-				blip_clear(left);
-				blip_clear(right);
+				blip_clear_(left);
+				blip_clear_(right);
 				return;
 			}
 		}
@@ -792,8 +792,8 @@ static void _postAudioBuffer(struct mAVStream* stream, blip_t* left, blip_t* rig
 		memset(&dspBuffer[bufferId], 0, sizeof(dspBuffer[bufferId]));
 		dspBuffer[bufferId].data_pcm16 = tmpBuf;
 		dspBuffer[bufferId].nsamples = AUDIO_SAMPLES;
-		blip_read_samples(left, dspBuffer[bufferId].data_pcm16, AUDIO_SAMPLES, true);
-		blip_read_samples(right, dspBuffer[bufferId].data_pcm16 + 1, AUDIO_SAMPLES, true);
+		blip_read_samples_(left, dspBuffer[bufferId].data_pcm16, AUDIO_SAMPLES, true);
+		blip_read_samples_(right, dspBuffer[bufferId].data_pcm16 + 1, AUDIO_SAMPLES, true);
 		DSP_FlushDataCache(dspBuffer[bufferId].data_pcm16, AUDIO_SAMPLES * 2 * sizeof(int16_t));
 		ndspChnWaveBufAdd(0, &dspBuffer[bufferId]);
 	}

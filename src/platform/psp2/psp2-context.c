@@ -248,16 +248,16 @@ static void _postAudioBuffer(struct mAVStream* stream, blip_t* left, blip_t* rig
 	MutexLock(&audioContext.mutex);
 	while (audioContext.samples + PSP2_SAMPLES >= PSP2_AUDIO_BUFFER_SIZE) {
 		if (!frameLimiter) {
-			blip_clear(left);
-			blip_clear(right);
+			blip_clear_(left);
+			blip_clear_(right);
 			MutexUnlock(&audioContext.mutex);
 			return;
 		}
 		ConditionWait(&audioContext.cond, &audioContext.mutex);
 	}
 	struct mStereoSample* samples = &audioContext.buffer[audioContext.writeOffset];
-	blip_read_samples(left, &samples[0].left, PSP2_SAMPLES, true);
-	blip_read_samples(right, &samples[0].right, PSP2_SAMPLES, true);
+	blip_read_samples_(left, &samples[0].left, PSP2_SAMPLES, true);
+	blip_read_samples_(right, &samples[0].right, PSP2_SAMPLES, true);
 	audioContext.samples += PSP2_SAMPLES;
 	audioContext.writeOffset += PSP2_SAMPLES;
 	if (audioContext.writeOffset >= PSP2_AUDIO_BUFFER_SIZE) {
@@ -377,8 +377,8 @@ void mPSP2LoadROM(struct mGUIRunner* runner) {
 	float rate = 60.0f / 1.001f;
 	sceDisplayGetRefreshRate(&rate);
 	double ratio = GBAAudioCalculateRatio(1, rate, 1);
-	blip_set_rates(runner->core->getAudioChannel(runner->core, 0), runner->core->frequency(runner->core), 48000 * ratio);
-	blip_set_rates(runner->core->getAudioChannel(runner->core, 1), runner->core->frequency(runner->core), 48000 * ratio);
+	blip_set_rates_(runner->core->getAudioChannel(runner->core, 0), runner->core->frequency(runner->core), 48000 * ratio);
+	blip_set_rates_(runner->core->getAudioChannel(runner->core, 1), runner->core->frequency(runner->core), 48000 * ratio);
 
 	switch (runner->core->platform(runner->core)) {
 #ifdef M_CORE_GBA

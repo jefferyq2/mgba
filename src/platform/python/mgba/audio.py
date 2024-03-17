@@ -13,10 +13,10 @@ class Buffer(object):
 
     @property
     def available(self):
-        return lib.blip_samples_avail(self._native)
+        return lib.blip_samples_avail_(self._native)
 
     def set_rate(self, rate):
-        lib.blip_set_rates(self._native, self._internal_rate, rate)
+        lib.blip_set_rates_(self._native, self._internal_rate, rate)
 
     def read(self, samples):
         buffer = ffi.new("short[%i]" % samples)
@@ -24,10 +24,10 @@ class Buffer(object):
         return buffer[:count]
 
     def read_into(self, buffer, samples, channels=1, interleave=0):
-        return lib.blip_read_samples(self._native, ffi.addressof(buffer, interleave), samples, channels == 2)
+        return lib.blip_read_samples_(self._native, ffi.addressof(buffer, interleave), samples, channels == 2)
 
     def clear(self):
-        lib.blip_clear(self._native)
+        lib.blip_clear_(self._native)
 
 
 class StereoBuffer(object):

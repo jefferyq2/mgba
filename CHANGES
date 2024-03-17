@@ -1446,7 +1446,7 @@ Bugfixes:
  - Wii: Fix framelimiting after a slowdown
  - Wii: Fix garbage flash at startup
 Misc:
- - 3DS: Use blip_add_delta_fast for a small speed improvement
+ - 3DS: Use blip_add_delta__fast_ for a small speed improvement
  - 3DS: Allow UTF-16 filenames
  - 3DS: Port to using citro3D
  - 3DS: Use system font for menus
